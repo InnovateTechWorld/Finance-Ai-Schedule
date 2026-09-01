@@ -1,0 +1,31 @@
+[
+  {
+    "date": "2026-09-01",
+    "macrostructure": "Workbench",
+    "theme": "Quiet",
+    "enrichment": "E-custom ledger-scan (Tier A, pure CSS)",
+    "nav": "N9",
+    "footer": "Ft2",
+    "verb": "redesign",
+    "brief": "Processing-state animation, saved sessions, Vercel readiness"
+  },
+  {
+    "date": "2026-09-01",
+    "macrostructure": "Workbench",
+    "theme": "Quiet",
+    "enrichment": "none",
+    "nav": "N9",
+    "footer": "Ft2",
+    "verb": "redesign",
+    "brief": "Review stage redesign — preview centre stage, collapsible left rail drawers, docked assistant, chrome-free render"
+  },
+  {
+    "date": "2026-09-01",
+    "macrostructure": "Workbench",
+    "theme": "Quiet",
+    "enrichment": "none",
+    "nav": "N9",
+    "footer": "Ft2",
+    "brief": "FIRS WHT/VAT schedule generator — upload, streamed agent run, review, download"
+  }
+]
