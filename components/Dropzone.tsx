@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useId, useRef, useState } from "react";
+import { MAX_FILES, MAX_FILE_BYTES, mb } from "@/lib/limits";
 
 const ACCEPTED =
   ".pdf,.png,.jpg,.jpeg,.webp,.gif,.heic,.heif,.tif,.tiff,.bmp,.svg,.docx,.doc,.xlsx,.xls,.pptx,.ppt,.odt,.ods,.rtf,.csv,.tsv,.txt,.md,.html";
 
 const FORMATS = ["PDF", "JPG / PNG", "HEIC", "DOCX", "XLSX", "CSV", "TXT"];
 
-const MAX_FILES = 20;
-const MAX_FILE_BYTES = 50 * 1024 * 1024;
 
 export function Dropzone({
   onRun,
@@ -38,7 +37,7 @@ export function Dropzone({
           continue;
         }
         if (f.size > MAX_FILE_BYTES) {
-          rejected.push(`${f.name} is over 50 MB`);
+          rejected.push(`${f.name} is over ${mb(MAX_FILE_BYTES)}`);
           continue;
         }
         // Same name and size twice is a double-drop, not two documents.
@@ -99,7 +98,7 @@ export function Dropzone({
       >
         <p className="drop__title">{dragging ? "Let go" : "Drop your documents here"}</p>
         <p className="drop__hint" id={inputId}>
-          or click to browse · up to {MAX_FILES} files, 50 MB each
+          or click to browse · up to {MAX_FILES} files, {mb(MAX_FILE_BYTES)} each
         </p>
         <div className="drop__formats">
           {FORMATS.map((f) => (

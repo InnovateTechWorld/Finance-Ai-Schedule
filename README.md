@@ -58,6 +58,15 @@ vercel --prod
 a Pro plan**; Hobby caps functions at 60s, which a multi-document extraction can
 exceed. On Hobby, lower it to 60 and demo with two or three files.
 
+**Upload size is the other platform limit.** A Vercel serverless function accepts
+a request body of at most 4.5 MB, well under the 50 MB-per-file the app allows
+when self-hosted. `lib/limits.ts` detects the platform (`VERCEL` server-side,
+`NEXT_PUBLIC_VERCEL_ENV` in the browser) and clamps both the dropzone's stated
+limit and the server's validation to 4 MB, so an oversized batch is refused with
+an explanation instead of a bare 413 from the edge. Bank statement PDFs are
+usually well under this; high-resolution scans are not. To lift it, upload
+straight to blob storage from the browser and pass the app a URL.
+
 The server session store is an in-process `Map`, which on serverless means a
 follow-up request may land on an instance that has never seen your session. That
 is why artifact bytes travel inline on the SSE stream and are held client-side,

@@ -8,10 +8,9 @@
  */
 import { convert, converterConfigured } from "./converter";
 import type { Block } from "./llm";
+import { HOSTED, MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES, mb } from "./limits";
 
-export const MAX_FILES = 20;
-export const MAX_FILE_BYTES = 50 * 1024 * 1024;
-export const MAX_TOTAL_BYTES = 120 * 1024 * 1024;
+export { MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES } from "./limits";
 /** The model's own per-request ceiling; PDFs and images are the bulk of it. */
 export const MAX_MODEL_BYTES = 28 * 1024 * 1024;
 
@@ -59,7 +58,11 @@ export function validateBatch(files: IncomingFile[]): string | null {
   if (files.length === 0) return "No files received. Drop in at least one statement or invoice.";
   if (files.length > MAX_FILES) return `${files.length} files — the limit is ${MAX_FILES} per run.`;
   const total = files.reduce((a, f) => a + f.bytes.byteLength, 0);
-  if (total > MAX_TOTAL_BYTES) return `That batch is ${mb(total)}. Keep a run under ${mb(MAX_TOTAL_BYTES)}.`;
+  if (total > MAX_TOTAL_BYTES) {
+    return HOSTED
+      ? `That batch is ${mb(total)}. This deployment accepts ${mb(MAX_TOTAL_BYTES)} per run — the hosting platform rejects larger uploads before they reach the app.`
+      : `That batch is ${mb(total)}. Keep a run under ${mb(MAX_TOTAL_BYTES)}.`;
+  }
   const empty = files.find((f) => f.bytes.byteLength === 0);
   if (empty) return `${empty.name} is empty — re-export it and try again.`;
   return null;
@@ -198,6 +201,3 @@ function sniff(buf: Buffer): string {
   return "";
 }
 
-function mb(n: number) {
-  return `${(n / 1_048_576).toFixed(0)} MB`;
-}
