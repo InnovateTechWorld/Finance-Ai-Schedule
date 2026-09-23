@@ -1,117 +1,166 @@
-# Schedule — FIRS WHT & VAT preparation
+# Finance AI Schedule
 
-Drop in bank statements and invoices. The app reads them with Claude, builds a
-FIRS-format withholding-tax and VAT schedule, writes a real `.xlsx` in the code
-sandbox, renders a PDF preview through the converter, and lets you correct the
-result — by hand in the table, or by asking in plain English.
+Finance AI Schedule is a document-driven workflow for turning scattered financial records into organized, reviewable schedules.
 
-## Run it
+It is designed for teams and individuals who work with bank statements, invoices, receipts, and supporting documents and want a faster way to convert raw files into structured financial data without doing everything manually.
+
+Instead of copying values from PDFs and spreadsheets by hand, the application reads uploaded documents, extracts relevant financial information, builds a working schedule, and gives the user a clear place to review, correct, and export the final result.
+
+## Why this project exists
+
+Financial preparation work is often repetitive, time-consuming, and error-prone.
+
+Common problems include:
+
+- large numbers of uploaded documents
+- manually retyping figures from statements and invoices
+- inconsistent formatting across source files
+- difficulty checking whether extracted values are complete and correct
+- needing to revise outputs after a first pass
+
+This project addresses those problems by combining AI extraction, structured review, and export-ready outputs in one workflow.
+
+## What the app does
+
+The application helps users:
+
+- upload source documents such as PDFs, images, and text-based files
+- extract relevant financial details using AI
+- organize the information into a schedule or table
+- review extracted values with confidence indicators and direct edit controls
+- revise results using natural-language feedback or manual corrections
+- export the final schedule as a spreadsheet or PDF preview
+
+The user experience is built around a simple flow:
+
+1. Upload documents
+2. Let the system analyze them
+3. Review generated schedule entries
+4. Fix values where needed
+5. Export or continue refining
+
+## Typical use cases
+
+This project is useful for a wide range of finance and accounting tasks, including:
+
+- VAT and tax schedule preparation
+- withholding tax summaries
+- invoice-to-schedule processing
+- payment and expense tracking
+- reconciliations from statements and supporting records
+- review of extracted accounting figures before finalization
+- internal finance documentation and reporting workflows
+
+It is especially helpful when a person needs to work quickly with many documents but still wants to validate the output before final submission.
+
+## Core workflow
+
+The system follows a practical document-processing pattern:
+
+### 1. Ingest
+The app accepts multiple file types and converts them into a form that the AI can process reliably.
+
+### 2. Extract
+The model reads the uploaded content and identifies key financial values, labels, dates, totals, and related entries.
+
+### 3. Structure
+The extracted content is organized into rows and columns that match the intended schedule format.
+
+### 4. Review
+The generated output is shown in an editable interface so the user can correct mistakes, confirm totals, or refine specific fields.
+
+### 5. Export
+The final result can be downloaded in spreadsheet format and previewed as a PDF-style document.
+
+## Key features
+
+- multi-file upload workflow
+- AI-assisted data extraction from financial documents
+- structured schedule generation
+- editable financial tables
+- inline review of uncertain values
+- natural-language revision flow
+- saved sessions for continuing previous work
+- export-ready workbook and preview output
+
+## Project purpose in plain terms
+
+This project is meant to reduce the effort of converting raw financial documents into usable accounting output.
+
+Instead of starting from a blank sheet and manually reading every document, a user can upload files and receive a draft schedule that is much closer to a final result. The tool does not replace judgment; it helps accelerate the process while keeping the user in control.
+
+## Getting started
+
+### Requirements
+
+- Node.js
+- package manager such as npm
+
+### Install and run
 
 ```bash
-cp .env.example .env.local   # fill in the keys
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000.
+Then open the local application in your browser.
 
 ## Configuration
 
-| Variable | Purpose |
-| --- | --- |
-| `AWS_BEARER_TOKEN_BEDROCK` + `AWS_REGION` | Bedrock bearer auth. Takes precedence when set. |
-| `BEDROCK_MODEL_ID` | Defaults to `anthropic.claude-sonnet-5`. A bare model ID is automatically given the cross-region inference-profile prefix for your region (`us.` / `eu.` / `apac.` / `au.` / `jp.` / `global.`); an already-prefixed ID or a profile ARN is passed through untouched. |
-| `MODEL_THINKING` | `off` (default) or `adaptive`. Off is markedly faster; extraction is transcription rather than reasoning. |
-| `BEDROCK_INFERENCE_GEO` | Override the derived geo prefix. Only needed in regions with no obvious mapping (`ca-`, `sa-`, `me-`, `af-`, `il-`). |
-| `ANTHROPIC_API_KEY` + `ANTHROPIC_MODEL_ID` | First-party fallback when no bearer token is present. |
-| `AGENT_V2_CODE_BASEURL` | `https://<API_KEY>@sandbox.wekoya.tech` — the key is the Basic-auth username. |
-| `FILE_CONVERT_API_KEY` (+ `_URL`, `_MAX_BYTES`, `_TIMEOUT_MS`) | Converter service. |
+Create a local environment file based on the sample configuration and fill in the required keys for your chosen AI and file-processing services.
 
-Nothing but the model is strictly required to see the flow: with no sandbox the
-schedule still renders on screen (without a workbook), and with no converter the
-workbook still downloads (without an inline preview). Every degradation is
-announced in the run log rather than failing silently.
+The project expects configuration for:
 
-## Saved sessions
+- the AI model used for document extraction
+- the model identifier
+- any required API key or bearer token
+- a document conversion or rendering service
 
-Every completed run is saved in the browser: the schedule, sources and log go to
-`localStorage`, the `.xlsx` / `.pdf` bytes to IndexedDB (a rendered PDF is easily
-300 KB and would exhaust the ~5 MB localStorage budget in two runs). The five
-most recent runs are listed on the upload screen.
+Example variables may include:
 
-Restoring is not cosmetic — the artifacts come back as blob URLs, so download,
-preview and expand all work, and `revise` / `regenerate` send the schedule with
-the request so they work even when the server has forgotten the session.
+- `MODEL_API_KEY`
+- `MODEL_ID`
+- `FILE_CONVERSION_API_KEY`
+- `FILE_CONVERSION_URL`
+- other service-specific settings depending on your deployment
 
-Storage is best-effort throughout. Private windows, blocked site data, a full
-quota and entries written by an older build all degrade to "no saved sessions".
+The exact values depend on the environment where the application is running.
 
-## Deploying to Vercel
+## Saved work and review flow
 
-```bash
-vercel                       # link the project
-vercel env add               # add each variable from .env.example
-vercel --prod
-```
+The application keeps recent sessions so users can revisit previous outputs without starting over. This makes it useful for iterative finance work, where a first extraction may need refinement before final export.
 
-`vercel.json` gives the three streaming routes `maxDuration: 300` — **this needs
-a Pro plan**; Hobby caps functions at 60s, which a multi-document extraction can
-exceed. On Hobby, lower it to 60 and demo with two or three files.
+The review process encourages users to validate the generated schedule before finalizing it. This helps catch errors early and reduces the risk of exporting incorrect financial values.
 
-**Upload size is the other platform limit.** A Vercel serverless function accepts
-a request body of at most 4.5 MB, well under the 50 MB-per-file the app allows
-when self-hosted. `lib/limits.ts` detects the platform (`VERCEL` server-side,
-`NEXT_PUBLIC_VERCEL_ENV` in the browser) and clamps both the dropzone's stated
-limit and the server's validation to 4 MB, so an oversized batch is refused with
-an explanation instead of a bare 413 from the edge. Bank statement PDFs are
-usually well under this; high-resolution scans are not. To lift it, upload
-straight to blob storage from the browser and pass the app a URL.
+## Deployment notes
 
-The server session store is an in-process `Map`, which on serverless means a
-follow-up request may land on an instance that has never seen your session. That
-is why artifact bytes travel inline on the SSE stream and are held client-side,
-and why the revise and regenerate routes accept a schedule in the request body.
-The `/api/artifact/...` route still exists and still works within one instance;
-nothing in the UI depends on it. For anything beyond a demo, move the store to
-Redis or Vercel KV — `lib/store.ts` is the only file that would change.
+The project is designed to run as a web application and can be deployed in a standard hosting environment that supports a Node-based application and environment variables.
 
-## Shape
+For production use, it is best to:
 
-```
+- protect API keys and sensitive environment variables
+- keep conversion services available and reliable
+- validate file sizes and uploaded document counts
+- review extracted values before final reporting
+
+## Folder structure
+
+```text
 app/
-  page.tsx                     upload → stream → review → chat, one state machine
-  api/process/route.ts         SSE: ingest, extract, compute, build, preview
-  api/revise/route.ts          SSE: natural-language correction, then rebuild
-  api/regenerate/route.ts      SSE: rebuild from hand edits in the table
-  api/artifact/[sid]/[kind]    serves the .xlsx and .pdf bytes
+  page.tsx                  main user flow for upload, review, and export
+  api/                      request routes for processing, revision, and artifact access
 lib/
-  ingest.ts    whatever was dropped → model-readable blocks
-  llm.ts       Bedrock-bearer (raw HTTP) or first-party SDK, one interface
-  sandbox.ts   /exec · /upload · /download, with session-expiry retry
-  converter.ts /convert, with the JSON-error-on-200 guard
-  xlsx.ts      the openpyxl script the sandbox runs
-  schema.ts    row shape, per-cell confidence, derived money, totals
-  events.ts    the SSE event union, shared by server and client
+  ingest.ts                 file intake and document preparation
+  llm.ts                    AI interaction layer
+  schema.ts                 financial row and field structure
+  xlsx.ts                   spreadsheet generation logic
+  converter.ts              file conversion and preview preparation
+  events.ts                 shared event and response definitions
 ```
 
-### File handling
+## Summary
 
-PDFs, PNG/JPEG/GIF/WebP and text/CSV go straight to the model. DOCX, XLSX,
-PPTX, ODT, RTF and HTML are converted to PDF first; HEIC, TIFF, BMP, SVG and
-AVIF are converted to PNG. Files with no extension are sniffed by magic bytes.
-Limits: 20 files, 50 MB each, 120 MB per batch, and a 28 MB model-request budget
-that drops the largest files first so a single huge scan cannot evict the
-invoices. Anything skipped is named, with the reason, in the sidebar.
+Finance AI Schedule is a practical AI-assisted financial document workflow. It is built to help people move faster from raw files to structured, reviewable financial schedules without losing control over the final result.
 
-### Confidence
-
-Every extracted field carries its own 0–1 confidence. Below 0.75 the cell is
-amber in the table, shaded in the workbook, and listed on the workbook's
-"Review notes" sheet. Editing a cell — by hand or through the chat — sets its
-confidence to 1, because a preparer who typed a value has decided it.
-
-## Design
-
-Hallmark · genre modern-minimal · macrostructure Workbench · theme Quiet ·
-nav N9 · footer Ft2. Tokens live in `tokens.css`; page CSS references them by
-name only.
+The main goal is simple: turn a pile of financial documents into a cleaner, more usable, and more trustworthy schedule with less manual effort.
